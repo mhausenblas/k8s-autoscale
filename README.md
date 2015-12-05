@@ -5,9 +5,9 @@ or simply autoscaler has been introduced. It is implemented as a control loop, p
  
 The underlying [autoscaling algorithm](http://kubernetes.io/v1.1/docs/design/horizontal-pod-autoscaler.html#autoscaling-algorithm) is as follows:
 
-- The observation period of the autoscaler is controlled by `--horizontal-pod-autoscaler-sync-period` and defaults value to 30 sec.
-- The CPU utilization is the recent CPU usage of a pod (average across the last minute) divided by the CPU requested by the pod. 
-- Currently, the CPU usage is taken directly from Heapster (see also below). In future, there will be API on master for this purpose (see also the PR <a href="https://github.com/kubernetes/kubernetes/pull/11951">11951</a>).
+- The observation period of the autoscaler is controlled by `--horizontal-pod-autoscaler-sync-period` and defaults to 30 sec.
+- The CPU utilization is the average CPU usage of a pod across the last minute divided by the CPU requested by the pod. 
+- Currently, the CPU usage is taken directly from Heapster (see also below). In future, there will be an API on the master for this, see also PR <a href="https://github.com/kubernetes/kubernetes/pull/11951">11951</a>).
 
 The target number of pods is calculated from the following formula:
 
@@ -45,7 +45,10 @@ And after the experiment I would get rid of the 2-node cluster like so:
 
     $ gcloud container clusters delete k8s-autoscale
 
-## Monitoring
+
+## Test Setup
+
+### Monitoring
 
 To monitor the test I used [heapster](https://github.com/kubernetes/heapster) which comes pre-installed on GCP:
 
@@ -69,7 +72,7 @@ This needs to be enabled separately. Following the [instructions](https://github
 
 ![GCP Monitoring](gcp-monitoring.png)
 
-## System Under Test
+### System Under Test
 
 The system under test (SUT) is a simple [CPU cycle burner](cpu-burner.js) and here is how it can be run locally, with Docker:
 
@@ -91,7 +94,7 @@ Next, let's [autoscale](http://kubernetes.io/v1.1/docs/user-guide/kubectl/kubect
 
 The above means: please scale the burner RC up to three replicas for a target average CPU utilization of 30%, per pod. Note that, as usual, you can list autoscalers with `kubectl get hpa` and get detailed description about one with `kubectl describe hpa`. 
 
-## Load Generator
+### Load Generator
 
 Next, we need to generate some load. For the load generator I used [bnorrin/docker-boom](https://hub.docker.com/r/bnorrin/docker-boom/), 
 a containerized version of the popular [boom](https://github.com/tarekziade/boom) load tester. I 'borrowed' the idea to use boom for load testing from <a href="https://github.com/kelseyhightower/">Kelsey</a>.
@@ -118,7 +121,6 @@ Above means: let's have 10 concurrent users and 100 requests each.
 And now we launch the load generator:
 
     $ kubectl create -f load-gen-rc.yaml
-
 
 ## The Test
 
