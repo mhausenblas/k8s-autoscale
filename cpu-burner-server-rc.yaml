@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: burner
+spec:
+  replicas: 1
+  selector:
+    app: burner-server
+  template:
+    metadata:
+      labels:
+        app: burner-server
+    spec:
+      containers:
+      - image: node:4.2.2
+        name: node-server
+        command: ["/bin/sh","-c"]
+        args: ["wget -O b.js -q https://gist.githubusercontent.com/mhausenblas/1bbd628a35ed5e58b8f2/raw/5e74ec7b4713374ce92516a0bb1011a5ef48541b/cpu-burner.js && node b.js "]
+        ports:
+          - containerPort: 8080

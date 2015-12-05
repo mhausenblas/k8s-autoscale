@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: cadvisor
+spec:
+  replicas: 1
+  selector:
+    app: cadvisor
+  template:
+    metadata:
+      labels:
+        app: cadvisor
+    spec:
+      containers:
+        - image: google/cadvisor:latest
+          name: cadvisor
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: varroot
+              mountPath: "/rootfs"
+              readOnly: true
+            - name: varrun
+              mountPath: "/var/run"
+              readOnly: false
+            - name: varlibdocker
+              mountPath: "/var/lib/docker"
+              readOnly: true
+            - name: sysfs
+              mountPath: "/sys"
+              readOnly: true
+      volumes:
+        - name: varroot
+          hostPath:
+            path: "/"
+        - name: varrun
+          hostPath:
+            path: "/var/run"
+        - name: varlibdocker
+          hostPath:
+            path: "/var/lib/docker"
+        - name: sysfs
+          hostPath:
+            path: "/sys"

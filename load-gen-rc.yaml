@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: lg
+spec:
+  replicas: 1
+  selector:
+    app: load-generator
+  template:
+    metadata:
+      labels:
+        app: load-generator
+    spec:
+      containers:
+      - image: bnorrin/docker-boom
+        name: boom
+        command: ["/bin/sh","-c"]
+        args: ["while true ; do boom http://10.10.10.69:8002/ -c 10 -n 100 ; sleep 1 ; done"]
