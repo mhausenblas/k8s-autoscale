@@ -69,18 +69,21 @@ Above means: scale up to three replicas for a target avg. CPU utilization of 30%
 For the load generator we're using a [bnorrin/docker-boom](https://hub.docker.com/r/bnorrin/docker-boom/), 
 a containerized version of the popular [boom](https://github.com/tarekziade/boom) load tester.
 
-First we need to figure where the Factorial Server is available (within the cluster):
+First we need to figure where the CPU cycle burner server is available (within the cluster):
 
     $ kubectl get svc
+    NAME         CLUSTER_IP      EXTERNAL_IP   PORT(S)    SELECTOR            AGE
+    burner-svc   10.239.255.45   <none>        8002/TCP   app=burner-server   3m
+    kubernetes   10.239.240.1    <none>        443/TCP    <none>              1h
 
-In our case this is on `10.10.10.69`, and with that we set up the load generator RC (below means 10 concurrent users and 100 requests each):
+In our case this is on `10.239.255.45`, and with that we set up the load generator RC (below means 10 concurrent users and 100 requests each):
 
     ...
     containers:
     - image: bnorrin/docker-boom
       name: boom
       command: ["/bin/sh","-c"]
-      args: ["while true ; do boom http://10.10.10.69:8002/ -c 10 -n 100 ; sleep 1 ; done"]
+      args: ["while true ; do boom http://10.239.255.45:8002/ -c 10 -n 100 ; sleep 1 ; done"]
     ...
 
 And now we launch it:
